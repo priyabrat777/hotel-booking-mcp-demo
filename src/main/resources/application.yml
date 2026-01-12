@@ -1,0 +1,80 @@
+spring:
+  application:
+    name: hotel-booking-mcp-server
+  
+  # Disable Spring Boot banner for STDIO MCP transport
+  main:
+    banner-mode: off
+  
+  # Database Configuration
+  datasource:
+    url: jdbc:postgresql://localhost:5432/hoteldb
+    username: hotel
+    password: hotel123
+    driver-class-name: org.postgresql.Driver
+  
+  # JPA Configuration
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+
+  # H2 Console (for development)
+  h2:
+    console:
+      enabled: false
+
+# MCP Server Configuration
+spring.ai.mcp.server:
+  name: hotel-booking-mcp-server
+  version: 1.0.0
+  type: SYNC
+  stdio: true
+  # Explicitly enable annotation scanning
+  flow:
+    enabled: true 
+
+# Logging Configuration - CRITICAL for MCP STDIO transport
+# All logging must go to STDERR, STDOUT is reserved for JSON-RPC messages
+logging:
+  file:
+    name: mcp-server.log
+  level:
+    root: INFO
+    com.hotel.mcp: INFO
+    org.springframework: INFO
+    org.hibernate: WARN
+  # Disable console appender output (logs will go to file if configured)
+  pattern:
+    console: ""
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+
+
+---
+# Development Profile (H2 Database)
+spring:
+  config:
+    activate:
+      on-profile: dev
+  
+  datasource:
+    url: jdbc:h2:mem:hoteldb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    username: sa
+    password: 
+    driver-class-name: org.h2.Driver
+  
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+  
+  h2:
+    console:
+      enabled: true
+      path: /h2-console

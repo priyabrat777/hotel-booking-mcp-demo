@@ -1,0 +1,17 @@
+{
+  "mcpServers": {
+    "hotel-booking": {
+      "command": "/opt/homebrew/Cellar/openjdk@21/21.0.8/libexec/openjdk.jdk/Contents/Home/bin/java",
+      "args": [
+        "-Dlogging.file.name=/Users/priyabrat_mac/workspaces/hotel-booking-mcp-demo/mcp-server.log",
+        "-jar",
+        "/Users/priyabrat_mac/workspaces/hotel-booking-mcp-demo/target/hotel-booking-mcp-server-1.0.0-SNAPSHOT.jar"
+      ],
+      "env": {
+        "SPRING_DATASOURCE_URL": "jdbc:postgresql://localhost:5432/hoteldb",
+        "SPRING_DATASOURCE_USERNAME": "hotel",
+        "SPRING_DATASOURCE_PASSWORD": "hotel123"
+      }
+    }
+  }
+}

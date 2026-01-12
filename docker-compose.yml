@@ -1,0 +1,56 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: hotel-booking-db
+    environment:
+      POSTGRES_DB: hoteldb
+      POSTGRES_USER: hotel
+      POSTGRES_PASSWORD: hotel123
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U hotel -d hoteldb"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - hotel-network
+
+  # Hotel Booking MCP Server
+  # Note: This is primarily for building the JAR and testing
+  # For Claude Desktop integration, run the JAR directly
+  hotel-booking-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: hotel-booking-mcp
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/hoteldb
+      SPRING_DATASOURCE_USERNAME: hotel
+      SPRING_DATASOURCE_PASSWORD: hotel123
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      JAVA_OPTS: "-Xms256m -Xmx512m"
+    # STDIO transport - no ports needed
+    # ports:
+    #   - "8080:8080"
+    networks:
+      - hotel-network
+    # Interactive mode for STDIO
+    stdin_open: true
+    tty: true
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  hotel-network:
+    driver: bridge

@@ -1,0 +1,26 @@
+version: '3.8'
+
+# Development configuration - PostgreSQL only
+# Use this for local development with the application running outside Docker
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: hotel-booking-db-dev
+    environment:
+      POSTGRES_DB: hoteldb
+      POSTGRES_USER: hotel
+      POSTGRES_PASSWORD: hotel123
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_dev_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U hotel -d hoteldb"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_dev_data:
+    driver: local
