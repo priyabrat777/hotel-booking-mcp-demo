@@ -104,4 +104,40 @@ public class HotelBookingTools {
 
         return bookingService.cancelBooking(bookingReference);
     }
+
+    /**
+     * Get occupancy report for a specific date.
+     * Internal tool for hotel staff.
+     */
+    @Tool(name = "get_occupancy_report", description = "Get a detailed occupancy report for a specific date. Includes total rooms, occupied rooms, occupancy rate, and expected check-ins/outs. For hotel staff use only.")
+    public OccupancyStats getOccupancyReport(
+            @ToolParam(description = "Date for the report in YYYY-MM-DD format (e.g., 2026-01-14)") String date) {
+
+        return bookingService.getOccupancyStats(date);
+    }
+
+    /**
+     * Get revenue report for a date range.
+     * Internal tool for hotel staff.
+     */
+    @Tool(name = "get_revenue_report", description = "Get a revenue report for a specific date range. Includes total confirmed revenue, number of bookings, and average daily rate. For hotel staff use only.")
+    public RevenueStats getRevenueReport(
+            @ToolParam(description = "Start date in YYYY-MM-DD format") String startDate,
+            @ToolParam(description = "End date in YYYY-MM-DD format") String endDate) {
+
+        return bookingService.getRevenueStats(startDate, endDate);
+    }
+
+    /**
+     * Search for bookings by guest name, phone, or email.
+     * Internal tool for hotel staff.
+     */
+    @Tool(name = "search_bookings", description = "Search for bookings using guest name, phone number, or email address. You can provide any combination of these filters. For hotel staff use only.")
+    public List<BookingDetails> searchBookings(
+            @ToolParam(description = "Guest name or part of name") String name,
+            @ToolParam(description = "Guest phone number") String phone,
+            @ToolParam(description = "Guest email address") String email) {
+
+        return bookingService.searchBookings(name, phone, email);
+    }
 }

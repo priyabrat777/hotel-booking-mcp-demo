@@ -17,61 +17,100 @@ import java.util.Optional;
 @Repository
 public interface BookingRepository extends JpaRepository<Booking, Long> {
 
-    /**
-     * Find a booking by its reference code.
-     */
-    Optional<Booking> findByBookingReference(String bookingReference);
+        /**
+         * Find a booking by its reference code.
+         */
+        Optional<Booking> findByBookingReference(String bookingReference);
 
-    /**
-     * Find all bookings for a guest by email.
-     */
-    List<Booking> findByGuestEmail(String guestEmail);
+        /**
+         * Find all bookings for a guest by email.
+         */
+        List<Booking> findByGuestEmail(String guestEmail);
 
-    /**
-     * Find all bookings with a specific status.
-     */
-    List<Booking> findByStatus(BookingStatus status);
+        /**
+         * Find all bookings with a specific status.
+         */
+        List<Booking> findByStatus(BookingStatus status);
 
-    /**
-     * Find all bookings for a room.
-     */
-    List<Booking> findByRoomId(Long roomId);
+        /**
+         * Find all bookings for a room.
+         */
+        List<Booking> findByRoomId(Long roomId);
 
-    /**
-     * Find bookings for a room that overlap with specified dates.
-     */
-    @Query("""
-            SELECT b FROM Booking b
-            WHERE b.room.id = :roomId
-            AND b.status IN ('PENDING', 'CONFIRMED')
-            AND (b.checkInDate <= :checkOut AND b.checkOutDate >= :checkIn)
-            """)
-    List<Booking> findOverlappingBookings(
-            @Param("roomId") Long roomId,
-            @Param("checkIn") LocalDate checkIn,
-            @Param("checkOut") LocalDate checkOut);
+        /**
+         * Find bookings for a room that overlap with specified dates.
+         */
+        @Query("""
+                        SELECT b FROM Booking b
+                        WHERE b.room.id = :roomId
+                        AND b.status IN ('PENDING', 'CONFIRMED')
+                        AND (b.checkInDate <= :checkOut AND b.checkOutDate >= :checkIn)
+                        """)
+        List<Booking> findOverlappingBookings(
+                        @Param("roomId") Long roomId,
+                        @Param("checkIn") LocalDate checkIn,
+                        @Param("checkOut") LocalDate checkOut);
 
-    /**
-     * Find all bookings for a specific date range.
-     */
-    @Query("""
-            SELECT b FROM Booking b
-            WHERE b.checkInDate >= :startDate
-            AND b.checkOutDate <= :endDate
-            ORDER BY b.checkInDate
-            """)
-    List<Booking> findBookingsInDateRange(
-            @Param("startDate") LocalDate startDate,
-            @Param("endDate") LocalDate endDate);
+        /**
+         * Find all bookings for a specific date range.
+         */
+        @Query("""
+                        SELECT b FROM Booking b
+                        WHERE b.checkInDate >= :startDate
+                        AND b.checkOutDate <= :endDate
+                        ORDER BY b.checkInDate
+                        """)
+        List<Booking> findBookingsInDateRange(
+                        @Param("startDate") LocalDate startDate,
+                        @Param("endDate") LocalDate endDate);
 
-    /**
-     * Find active bookings (pending or confirmed).
-     */
-    @Query("SELECT b FROM Booking b WHERE b.status IN ('PENDING', 'CONFIRMED') ORDER BY b.checkInDate")
-    List<Booking> findActiveBookings();
+        /**
+         * Find active bookings (pending or confirmed).
+         */
+        @Query("SELECT b FROM Booking b WHERE b.status IN ('PENDING', 'CONFIRMED') ORDER BY b.checkInDate")
+        List<Booking> findActiveBookings();
 
-    /**
-     * Count bookings by status.
-     */
-    long countByStatus(BookingStatus status);
+        /**
+         * Count bookings by status.
+         */
+        long countByStatus(BookingStatus status);
+
+        /**
+         * Count active bookings (PENDING or CONFIRMED) that overlap with a specific
+         * date.
+         */
+        @Query("""
+                        SELECT COUNT(b) FROM Booking b
+                        WHERE b.status IN ('PENDING', 'CONFIRMED')
+                        AND :date >= b.checkInDate AND :date < b.checkOutDate
+                        """)
+        long countActiveBookingsOnDate(@Param("date") LocalDate date);
+
+        /**
+         * Sum total price of all CONFIRMED bookings in a date range.
+         */
+        @Query("""
+                        SELECT SUM(b.totalPrice) FROM Booking b
+                        WHERE b.status = 'CONFIRMED'
+                        AND b.checkInDate >= :startDate
+                        AND b.checkInDate <= :endDate
+                        """)
+        java.math.BigDecimal sumRevenueInDateRange(
+                        @Param("startDate") LocalDate startDate,
+                        @Param("endDate") LocalDate endDate);
+
+        /**
+         * Find bookings where guest name contains the given string (case-insensitive).
+         */
+        List<Booking> findByGuestNameContainingIgnoreCase(String guestName);
+
+        /**
+         * Find bookings where guest phone contains the given string.
+         */
+        List<Booking> findByGuestPhoneContaining(String guestPhone);
+
+        /**
+         * Find bookings where guest email contains the given string (case-insensitive).
+         */
+        List<Booking> findByGuestEmailContainingIgnoreCase(String guestEmail);
 }

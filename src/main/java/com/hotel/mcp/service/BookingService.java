@@ -194,6 +194,84 @@ public class BookingService {
     }
 
     /**
+     * Get occupancy statistics for a specific date.
+     */
+    @Transactional(readOnly = true)
+    public OccupancyStats getOccupancyStats(String dateStr) {
+        log.info("Fetching occupancy stats for date: {}", dateStr);
+        LocalDate date;
+        try {
+            date = LocalDate.parse(dateStr);
+        } catch (DateTimeParseException e) {
+            log.error("Invalid date format: {}", dateStr);
+            return null; // Or throw an exception
+        }
+
+        long totalRooms = roomRepository.count();
+        long occupiedRooms = bookingRepository.countActiveBookingsOnDate(date);
+
+        // Expected check-ins/check-outs for the day
+        long checkIns = bookingRepository.findActiveBookings().stream()
+                .filter(b -> b.getCheckInDate().equals(date))
+                .count();
+        long checkOuts = bookingRepository.findActiveBookings().stream()
+                .filter(b -> b.getCheckOutDate().equals(date))
+                .count();
+
+        return OccupancyStats.of(date, totalRooms, occupiedRooms, checkIns, checkOuts);
+    }
+
+    /**
+     * Get revenue statistics for a date range.
+     */
+    @Transactional(readOnly = true)
+    public RevenueStats getRevenueStats(String startDateStr, String endDateStr) {
+        log.info("Fetching revenue stats from {} to {}", startDateStr, endDateStr);
+        LocalDate start, end;
+        try {
+            start = LocalDate.parse(startDateStr);
+            end = LocalDate.parse(endDateStr);
+        } catch (DateTimeParseException e) {
+            log.error("Invalid date range: {} to {}", startDateStr, endDateStr);
+            return null;
+        }
+
+        BigDecimal totalRevenue = bookingRepository.sumRevenueInDateRange(start, end);
+        if (totalRevenue == null)
+            totalRevenue = BigDecimal.ZERO;
+
+        long count = bookingRepository.findBookingsInDateRange(start, end).stream()
+                .filter(b -> b.getStatus() == BookingStatus.CONFIRMED)
+                .count();
+
+        return RevenueStats.of(start, end, totalRevenue, count);
+    }
+
+    /**
+     * Search bookings by name, phone, or email.
+     */
+    @Transactional(readOnly = true)
+    public java.util.List<BookingDetails> searchBookings(String name, String phone, String email) {
+        log.info("Searching bookings by name={}, phone={}, email={}", name, phone, email);
+        java.util.Set<Booking> results = new java.util.HashSet<>();
+
+        if (name != null && !name.isBlank()) {
+            results.addAll(bookingRepository.findByGuestNameContainingIgnoreCase(name.trim()));
+        }
+        if (phone != null && !phone.isBlank()) {
+            results.addAll(bookingRepository.findByGuestPhoneContaining(phone.trim()));
+        }
+        if (email != null && !email.isBlank()) {
+            results.addAll(bookingRepository.findByGuestEmailContainingIgnoreCase(email.trim().toLowerCase()));
+        }
+
+        return results.stream()
+                .map(BookingDetails::from)
+                .sorted(java.util.Comparator.comparing(BookingDetails::checkInDate))
+                .toList();
+    }
+
+    /**
      * Generate a unique booking reference.
      * Format: HBK-YYYYMMDD-XXXX (e.g., HBK-20260112-A7B3)
      */
