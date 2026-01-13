@@ -85,6 +85,23 @@ For development/testing without Claude Desktop:
 
 4. Start a conversation and ask about hotel bookings!
 
+### 5. Test with MCP Inspector
+
+The [MCP Inspector](https://github.com/modelcontextprotocol/inspector) is an interactive tool for testing MCP servers.
+
+```bash
+# Run inspector with the application JAR
+npx @modelcontextprotocol/inspector java -jar target/hotel-booking-mcp-server-1.0.0-SNAPSHOT.jar
+```
+
+This will start a web interface (usually at `http://localhost:3000`) where you can:
+- View all available tools
+- Execute tools with custom parameters
+- Inspect raw JSON requests and responses
+
+> [!TIP]
+> Make sure PostgreSQL is running before starting the inspector if you are using the default profile.
+
 ## 🛠️ MCP Tools Reference
 
 The server exposes the following tools that Claude can use:
@@ -146,6 +163,33 @@ Cancels an existing booking.
 - `bookingReference` - The booking code
 
 **Example prompt**: "Cancel booking HBK-20260112-A7B3"
+
+### `get_occupancy_report` [NEW]
+Provides a detailed occupancy report for a specific date. (Staff Tool)
+
+**Parameters**:
+- `date` - Format: YYYY-MM-DD
+
+**Example prompt**: "Give me the occupancy report for 2026-01-14"
+
+### `get_revenue_report` [NEW]
+Calculates total confirmed revenue and average daily rate for a period. (Staff Tool)
+
+**Parameters**:
+- `startDate` - Format: YYYY-MM-DD
+- `endDate` - Format: YYYY-MM-DD
+
+**Example prompt**: "Show me the revenue report from Jan 1st to Jan 7th, 2026"
+
+### `search_bookings` [NEW]
+Searches for reservations using guest details. (Staff Tool)
+
+**Parameters**:
+- `name` - Guest name (partial match)
+- `phone` - Guest phone number
+- `email` - Guest email address
+
+**Example prompt**: "Search for bookings under the name 'Priyabrat' or email 'priya@example.com'"
 
 ## 💬 Example Conversation
 
