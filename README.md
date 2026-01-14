@@ -191,6 +191,28 @@ Searches for reservations using guest details. (Staff Tool)
 
 **Example prompt**: "Search for bookings under the name 'Priyabrat' or email 'priya@example.com'"
 
+## 💡 MCP Prompts
+
+The server provides predefined prompt templates to help you interact with guests.
+
+### `welcoming_guest`
+Generates a warm, personalized greeting for a guest's check-in.
+
+**Arguments**:
+- `guestName`: Full name of the guest.
+- `roomNumber`: Assigned room number.
+
+**Example usage**: (In Claude) "Use the welcoming_guest prompt for John Doe in room 201"
+
+### `room_suggestion`
+Suggests the best room type based on guest needs and preferences.
+
+**Arguments**:
+- `preferences`: Guest preferences (e.g., "quiet", "mountain view").
+- `numberOfGuests`: Number of people (default is 2).
+
+**Example usage**: "Use the room_suggestion prompt for a couple looking for a quiet room with a view"
+
 ## 💬 Example Conversation
 
 ```

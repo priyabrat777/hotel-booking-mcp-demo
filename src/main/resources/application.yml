@@ -5,6 +5,7 @@ spring:
   # Disable Spring Boot banner for STDIO MCP transport
   main:
     banner-mode: off
+    web-application-type: none
   
   # Database Configuration
   datasource:
@@ -29,14 +30,25 @@ spring:
       enabled: false
 
 # MCP Server Configuration
-spring.ai.mcp.server:
-  name: hotel-booking-mcp-server
-  version: 1.0.0
-  type: SYNC
-  stdio: true
-  # Explicitly enable annotation scanning
-  flow:
-    enabled: true 
+  ai:
+    mcp:
+      server:
+        name: hotel-booking-mcp-server
+        version: 1.0.0
+        transport: STDIO
+        type: SYNC
+        capabilities:
+          tools:
+            enabled: true
+          resources:
+            enabled: false
+          prompts:
+            enabled: true
+          completion: false
+          roots:
+            enabled: false
+          logging:
+            enabled: true
 
 # Logging Configuration - CRITICAL for MCP STDIO transport
 # All logging must go to STDERR, STDOUT is reserved for JSON-RPC messages
