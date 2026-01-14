@@ -41,7 +41,7 @@ spring:
           tools:
             enabled: true
           resources:
-            enabled: false
+            enabled: true
           prompts:
             enabled: true
           completion: false
